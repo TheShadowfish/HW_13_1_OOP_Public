@@ -2,7 +2,6 @@ import json
 import os
 from src.products import Product
 from src.products import Category
-# Дополнительное задание Реализуйте подгрузку данных по категориям и товарам из файла JSON. Для этого опишите специальную функцию, которая будет читать файл и создавать объекты классов.
 
 
 def file_exist(filename: str) -> str | None:
@@ -44,10 +43,11 @@ def load_json(filename) -> list | None:
                 return data_json
         except Exception as e:
             raise str(e)
-        return None
+            return None
     else:
         raise FileNotFoundError(f"Файл {filename} не найден")
         return None
+
 
 def json_parse(data_json) -> list[Category]:
     category_list = []
