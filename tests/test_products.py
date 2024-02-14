@@ -46,6 +46,25 @@ def test_product__str(product_blackview):
     assert product_blackview.__str__() == "Смартфон BV8900, зеленый, 21000.0. Остаток: 7 шт."
 
 
+def test_product__eg__(product_xiaomi, product_xiaomi_same_name):
+    assert product_xiaomi.__eq__(product_xiaomi)
+    assert product_xiaomi.__eq__(product_xiaomi_same_name)
+    assert product_xiaomi.__eq__('Xiaomi Redmi Note 11')
+    assert not product_xiaomi.__eq__('Xiaomi Redmi Note 9')
+    assert not product_xiaomi.__eq__('fgsfds')
+    with pytest.raises(TypeError):
+        product_xiaomi.__eq__(None)
+    with pytest.raises(TypeError):
+        product_xiaomi.__eq__(1100342432)
+
+
+#
+# def test_operation__verify_data(one_right_dict_fixture):
+#     op1 = Operation(one_right_dict_fixture)
+#     with pytest.raises(TypeError):
+#         op1.__eq__('no_operation_no_datetime')
+
+
 def test_category__init__(product_xiaomi, product_iphone, product_samsung):
     category_phone = Category('Смартфоны', 'описание категории', [product_xiaomi, product_iphone, product_samsung])
 

@@ -24,6 +24,17 @@ class Product:
         """
         return f"{self.title}, {str(self.price)}. Остаток: {str(self.quantity)} шт."
 
+    @classmethod
+    def __verify_data(cls, other):
+        if not isinstance(other, (str, Product)):
+            raise TypeError("Операнд справа должен иметь тип datetime или Operation")
+
+        return other if isinstance(other, str) else other.title
+
+    def __eq__(self, other):
+        sc = self.__verify_data(other)
+        return self.title == sc
+
 
 class Category:
     """
