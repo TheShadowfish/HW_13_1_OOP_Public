@@ -1,5 +1,3 @@
-
-
 class Product:
     """
     Продукты. Поля класса:
@@ -14,6 +12,17 @@ class Product:
         self.description = description
         self.price = price
         self.quantity = quantity
+
+    @classmethod
+    def create_and_return(cls, title: str, description: str, price: float, quantity: int):
+        new_product = cls(title, description, price, quantity)
+        return new_product
+
+    def __str__(self):
+        """
+        Выводит строку типа: 'Продукт, 80 руб. Остаток: 15 шт.'
+        """
+        return f"{self.title}, {str(self.price)}. Остаток: {str(self.quantity)} шт."
 
 
 class Category:
@@ -33,15 +42,34 @@ class Category:
     def __init__(self, title: str, description: str, products: list[Product]):
         self.title = title
         self.description = description
-        self.products = products
+        self.__products = products
 
         Category.category_count += 1
 
         # Category.product_count += len(set(self.products))
-        Category.product_count += Category.unique_products(self.products)
+        Category.product_count += Category.unique_products(self.__products)
 
-    @classmethod
-    def unique_products(cls, products: list[Product]) -> int:
+    @property
+    def products(self):
+        return self.__products
+
+    @property
+    def product_list(self):
+        products_strings = []
+        for prod in self.__products:
+            products_strings.append(str(prod))
+        return products_strings
+
+    def add_product(self, product: Product):
+        """Добавление продукта в список."""
+        if isinstance(product, Product):
+            self.__products.append(product)
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def unique_products(products: list[Product]) -> int:
         # Уникальность продукта в категории проверяем по названию
         names_set = []
         for prod in products:
