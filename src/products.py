@@ -10,8 +10,40 @@ class Product:
     def __init__(self, title: str, description: str, price: float, quantity: int):
         self.title = title
         self.description = description
-        self.price = price
+        self.__price = price
         self.quantity = quantity
+
+    @property
+    def price(self):
+        return self.__price
+
+    """
+    В случае если цена равна или ниже нуля, выведите сообщение в консоль, что цена введена некорректная, 
+    при этом новую цену устанавливать не нужно.
+    Дополнительное задание (к заданию 4) В случае если цена товара понижается, 
+    добавьте логику подтверждения пользователем вручную через ввод y (значит yes) или n (значит no) 
+    для согласия понизить цену или для отмены действия соответственно.
+    """
+
+    @price.setter
+    def price(self, price):
+
+        if price <= 0:
+            print(f"Цена введена некорректная.")
+            raise ValueError("Цена товара не может быть отрицательной или нулевой")
+        elif price < self.__price:
+            while True:
+                print(f"Товар: {self}, новая цена: {price} (ниже)")
+                user_input = input("Вы действительно хотите установить более низкую цену? 'y'- да, 'n'-нет")
+
+                if user_input == 'y':
+                    self.__price = price
+                    break
+                elif user_input == 'n':
+                    break
+
+        else:
+            self.__price = price
 
     @classmethod
     def create_and_return(cls, title: str, description: str, price: float, quantity: int):
@@ -22,18 +54,44 @@ class Product:
         """
         Выводит строку типа: 'Продукт, 80 руб. Остаток: 15 шт.'
         """
-        return f"{self.title}, {str(self.price)}. Остаток: {str(self.quantity)} шт."
+        return f"{self.title}, {str(self.__price)}. Остаток: {str(self.quantity)} шт."
+
+    def __repr__(self):
+        """
+        Выводит строку типа: 'Продукт, 80 руб. Остаток: 15 шт.'
+        """
+        return f"<{self.title}, {self.description}, {str(self.__price)},{str(self.quantity)}>"
 
     @classmethod
     def __verify_data(cls, other):
         if not isinstance(other, (str, Product)):
-            raise TypeError("Операнд справа должен иметь тип datetime или Operation")
+            raise TypeError("Операнд справа должен иметь тип string или Product")
 
         return other if isinstance(other, str) else other.title
 
     def __eq__(self, other):
         sc = self.__verify_data(other)
         return self.title == sc
+
+    """
+    Дополнительное задание (к заданию 3) Для данного метода (добавление продукта в список продуктов Category)
+    реализуйте проверку наличия такого же товара, схожего по имени. В случае если товар уже существует, необходимо
+    сложить количество в наличии старого товара и нового. При конфликте цен выбрать ту, которая является
+    более высокой.
+    """
+
+    @staticmethod
+    def is_product_in_list(prod, products: list) -> int | None:
+        """
+        Возвращает номер товара, схожего по имени в списке товаров или None
+        :param prod: продукт
+        :param products: список продуктов
+        :return: совпадающий элемент (int) или False
+        """
+        for i, elem in enumerate(products, start=0):
+            if prod == elem:
+                return i
+        return None
 
 
 class Category:
@@ -74,10 +132,28 @@ class Category:
     def add_product(self, product: Product):
         """Добавление продукта в список."""
         if isinstance(product, Product):
-            self.__products.append(product)
-            return True
+            index_if_product_exist = Product.is_product_in_list(product, self.__products)
+            if index_if_product_exist is not None:
+                merged_successfully = self.merge_products(product, self.__products[index_if_product_exist])
+                return merged_successfully
+            else:
+                self.__products.append(product)
+                return True
         else:
             return False
+
+    """
+    Дополнительное задание (к заданию 3) Для данного метода (добавление продукта в список продуктов Category)
+    реализуйте проверку наличия такого же товара, схожего по имени. В случае если товар уже существует, необходимо
+    сложить количество в наличии старого товара и нового. При конфликте цен выбрать ту, которая является
+    более высокой.
+    """
+
+    @staticmethod
+    def merge_products(product, prod_in_list):
+        prod_in_list.quantity += product.quantity
+        prod_in_list.price = max([prod_in_list.price, product.price])
+        return True
 
     @staticmethod
     def unique_products(products: list[Product]) -> int:

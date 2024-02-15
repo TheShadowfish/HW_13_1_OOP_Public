@@ -11,7 +11,7 @@ def product_xiaomi():
 
 @pytest.fixture
 def product_xiaomi_same_name():
-    return Product('Xiaomi Redmi Note 11', '1024GB, Серебрянный', 31000.0, 10)
+    return Product('Xiaomi Redmi Note 11', '1024GB, Серебрянный', 35000.0, 10)
 
 
 @pytest.fixture
@@ -44,18 +44,32 @@ def test_create_and_return_product():
 
 def test_product__str(product_blackview):
     assert product_blackview.__str__() == "Смартфон BV8900, зеленый, 21000.0. Остаток: 7 шт."
+    assert product_blackview.__repr__() == '<Смартфон BV8900, зеленый, 256GB, Green, 10000 mAh, teplovision, 21000.0,7>'
+
+
+def test_incorrect_price(product_iphone):
+    with pytest.raises(ValueError):
+        product_iphone.price = -1
 
 
 def test_product__eg__(product_xiaomi, product_xiaomi_same_name):
-    assert product_xiaomi.__eq__(product_xiaomi)
-    assert product_xiaomi.__eq__(product_xiaomi_same_name)
-    assert product_xiaomi.__eq__('Xiaomi Redmi Note 11')
-    assert not product_xiaomi.__eq__('Xiaomi Redmi Note 9')
-    assert not product_xiaomi.__eq__('fgsfds')
+    assert product_xiaomi == product_xiaomi
+    assert product_xiaomi == product_xiaomi_same_name
+    assert product_xiaomi == 'Xiaomi Redmi Note 11'
+    assert not product_xiaomi == 'Xiaomi Redmi Note 9'
+    assert not product_xiaomi == 'fgsfds'
     with pytest.raises(TypeError):
         product_xiaomi.__eq__(None)
     with pytest.raises(TypeError):
         product_xiaomi.__eq__(1100342432)
+
+
+def test_is_product_in_list(product_xiaomi, product_xiaomi_same_name, product_samsung, product_iphone):
+    assert Product.is_product_in_list(product_xiaomi, [product_iphone, product_samsung]) is None
+    assert Product.is_product_in_list(product_xiaomi, []) is None
+    assert Product.is_product_in_list(product_xiaomi, [product_iphone, product_xiaomi_same_name]) == 1
+    assert Product.is_product_in_list(product_xiaomi, ['prod1', 'prod2', 'Xiaomi Redmi Note 11', 'prod3']) == 2
+    assert Product.is_product_in_list('Xiaomi Redmi Note 11', [product_iphone, product_xiaomi_same_name]) == 1
 
 
 #
@@ -94,10 +108,27 @@ def test_add_product(product_xiaomi, product_iphone, product_samsung, product_bl
     category_phone = Category('Смартфоны', 'описание категории',
                               [product_xiaomi, product_iphone, product_samsung])
     assert len(category_phone.product_list) == 3
-    #
+
     assert category_phone.add_product(product_blackview)
     assert not category_phone.add_product("Not product, string")
     assert len(category_phone.product_list) == 4
+
+
+def test_add_product_is_yet(product_xiaomi, product_iphone, product_samsung, product_xiaomi_same_name):
+    category_phone = Category('Смартфоны', 'описание категории',
+                              [product_xiaomi, product_iphone, product_samsung])
+
+    quantity = product_xiaomi.quantity + product_xiaomi_same_name.quantity
+    price = max([product_xiaomi.price, product_xiaomi_same_name.price])
+
+    assert len(category_phone.product_list) == 3
+    #
+    assert category_phone.add_product(product_xiaomi_same_name)
+    # assert not category_phone.add_product("Not product, string")
+    assert len(category_phone.product_list) == 3
+    assert category_phone.products[0].quantity == quantity
+    assert category_phone.products[0].price == price
+    assert price == 35000.0
 
 
 def test_category_category_count(product_xiaomi, product_iphone, product_samsung):
@@ -123,13 +154,16 @@ def test_product_count_change__init__(product_xiaomi, product_iphone, product_sa
     old_prod_count = Category.product_count
     category_phone = Category('Смартфоны', 'описание категории', [])
     assert Category.product_count == 0 + old_prod_count
+    assert category_phone
 
     old_prod_count = Category.product_count
     category_phone = Category('Смартфоны', 'описание категории',
                               [product_xiaomi, product_iphone, product_samsung])
     assert Category.product_count == 3 + old_prod_count
+    assert category_phone
 
     old_prod_count = Category.product_count
     category_phone = Category('Смартфоны', 'описание категории',
                               [product_xiaomi, product_iphone, product_xiaomi_same_name])
     assert Category.product_count == 2 + old_prod_count
+    assert category_phone
