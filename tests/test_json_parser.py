@@ -1,25 +1,27 @@
 import json
-import  pytest
+import pytest
 from src.json_parser import json_parse
+
 
 @pytest.fixture
 def json_to_categories():
     json_dict = [
-    {
-        "name": "Телевизоры",
-        "description": "Современный телевизор, который позволяет наслаждаться просмотром, станет вашим другом и помощником",
-        "products": [
         {
-            "name": "55\" QLED 4K",
-            "description": "Фоновая подсветка",
-            "price": 123000.0,
-            "quantity": 7
+            "name": "Телевизоры",
+            "description": "Современный телевизор, который позволяет наслаждаться просмотром, станет вашим другом и помощником",
+            "products": [
+                {
+                    "name": "55\" QLED 4K",
+                    "description": "Фоновая подсветка",
+                    "price": 123000.0,
+                    "quantity": 7
+                }
+            ]
         }
-        ]
-    }
     ]
 
     return json_dict
+
 
 def test_json_parse(json_to_categories):
     """ Корректность получения экземпляров Category Product из файла JSON"""

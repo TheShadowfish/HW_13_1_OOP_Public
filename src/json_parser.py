@@ -12,7 +12,7 @@ def file_exist(filename: str) -> str | None:
     При запуске из IDE можно обойтись и относительными путями
     """
     # относительный путь - в папке проекта
-    filepath = os.path.join(filename)
+    # filepath = os.path.join(filename)
     # print(f"filepath {filepath}")
     parent_dir = os.path.dirname(os.path.abspath(__file__))
     # print(f"parent_dir {parent_dir}")
