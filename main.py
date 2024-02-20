@@ -1,5 +1,4 @@
 from src.products import Product
-from src.products import Category
 
 from src.json_parser import file_exist
 from src.json_parser import load_json
