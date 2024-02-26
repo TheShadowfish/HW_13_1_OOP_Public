@@ -70,11 +70,14 @@ class Product:
         Например, для товара с ценой 100 рублей и количеством на складе 10 и товара b c ценой 200 рублей
         и количеством на складе 2 результатом выполнения операции a + b должно стать значение,
         полученное из 100 × 10 + 200 × 2 = 1400.
+
+        Доработать функционал сложения таким образом, чтобы можно было складывать товары только из одинаковых
+        классов продуктов. То есть если складывать товар класса «Смартфон» и товар класса «Продукт», то должна быть ошибка типа.
         """
-        if isinstance(other, Product):
+        if isinstance(other, Product) and type(other) == type(self):
             return self.quantity * self.__price + other.quantity * other.__price
         else:
-            raise TypeError(f"You can't add {type(other)} to {self.__class__.__name__}")
+            raise TypeError(f"You can't add {type(other)} to {type(self)}")
 
     @classmethod
     def __verify_data(cls, other):
@@ -99,6 +102,41 @@ class Product:
             if prod == elem:
                 return i
         return None
+
+
+class Smartphone(Product):
+    """
+    Помимо имеющихся свойств, необходимо добавить следующие:
+    производительность,
+    модель,
+    объем встроенной памяти,
+    цвет.
+    """
+
+    def __init__(self, title: str, description: str, price: float, quantity: int,
+                 performance: str, model: str, memory: str, color: str):
+        super().__init__(title, description, price, quantity)
+        self.performance = performance
+        self.model = model
+        self.memory = memory
+        self.color = color
+
+
+class LawnGrass(Product):
+    """
+    Трава газонная
+    Помимо имеющихся свойств, необходимо добавить следующие:
+    страна-производитель,
+    срок прорастания,
+    цвет.
+    """
+
+    def __init__(self, title: str, description: str, price: float, quantity: int,
+                 manufacturer: str, germination_period: str, color: str):
+        super().__init__(title, description, price, quantity)
+        self.manufacturer = manufacturer
+        self.germination_period = germination_period
+        self.color = color
 
 
 class Category:
@@ -138,7 +176,7 @@ class Category:
 
     def add_product(self, product: Product):
         """Добавление продукта в список."""
-        if isinstance(product, Product):
+        if isinstance(product, (Product, Smartphone, LawnGrass)):
             index_if_product_exist = Product.is_product_in_list(product, self.__products)
             if index_if_product_exist is not None:
                 merged_successfully = self.merge_products(product, self.__products[index_if_product_exist])
