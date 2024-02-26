@@ -3,6 +3,8 @@ import pytest
 from src.products import Product
 from src.products import Category
 from src.products import CategoryIterator
+from src.products import Smartphone
+from src.products import LawnGrass
 
 
 @pytest.fixture
@@ -29,6 +31,38 @@ def product_iphone():
 def product_blackview():
     return Product('Смартфон BV8900, зеленый', '256GB, Green, 10000 mAh, teplovision', 21000.0, 7)
 
+@pytest.fixture
+def smartphone():
+    return Smartphone('Xiaomi Redmi Note 11 (Pro)', '1024GB, Синий', 31000.0, 14,
+                      'high', 'Xiaomi Redmi Note 11', '1024GB', 'Синий')
+
+@pytest.fixture
+def lawngrass():
+    return LawnGrass('Трава газонная голландская', 'Можно любоваться, можно курить', 7000.0, 22,
+                      'Голландия', '2 недели', 'Темно-зеленый')
+
+def test_smartphone__init(smartphone):
+    """ Корректность инициализации объектов класса Product"""
+    assert smartphone.title == 'Xiaomi Redmi Note 11 (Pro)'
+    assert smartphone.description == '1024GB, Синий'
+    assert smartphone.price == 31000.0
+    assert smartphone.quantity == 14
+    assert smartphone.performance == 'high'
+    assert smartphone.model == 'Xiaomi Redmi Note 11'
+    assert smartphone.memory == '1024GB'
+    assert smartphone.color == 'Синий'
+
+
+def test_lawngrass__init(lawngrass):
+    """ Корректность инициализации объектов класса Product"""
+    assert lawngrass.title == 'Трава газонная голландская'
+    assert lawngrass.description == 'Можно любоваться, можно курить'
+    assert lawngrass.price == 7000.0
+    assert lawngrass.quantity == 22
+    assert lawngrass.manufacturer == 'Голландия'
+    assert lawngrass.germination_period == '2 недели'
+    assert lawngrass.color == 'Темно-зеленый'
+
 
 def test_product__init(product_xiaomi):
     """ Корректность инициализации объектов класса Product"""
@@ -49,10 +83,20 @@ def test_product__str(product_blackview):
                                             '21000.0, 7)>')
 
 
-def test_product__add(product_xiaomi, product_iphone):
+def test_product__add(product_xiaomi, product_iphone, smartphone, lawngrass):
     assert product_xiaomi.__add__(product_iphone) == 2114000.0
+    assert smartphone.__add__(smartphone) == 868000.0
+    assert lawngrass.__add__(lawngrass) == 308000.0
     with pytest.raises(TypeError):
         product_xiaomi.__add__('Xiaomi Redmi Note 9')
+    with pytest.raises(TypeError):
+        product_xiaomi.__add__(smartphone)
+    with pytest.raises(TypeError):
+        product_xiaomi.__add__(lawngrass)
+    with pytest.raises(TypeError):
+        lawngrass.__add__(smartphone)
+
+
 
 
 def test_incorrect_price(product_iphone):
@@ -112,14 +156,23 @@ def test_category_product_list(product_xiaomi, product_iphone, product_samsung):
     assert len(category_phone.product_list) == 3
 
 
-def test_add_product(product_xiaomi, product_iphone, product_samsung, product_blackview):
+def test_add_product(product_xiaomi, product_iphone, product_samsung, product_blackview, smartphone, lawngrass):
     category_phone = Category('Смартфоны', 'описание категории',
                               [product_xiaomi, product_iphone, product_samsung])
     assert len(category_phone.product_list) == 3
 
     assert category_phone.add_product(product_blackview)
-    assert not category_phone.add_product("Not product, string")
+
     assert len(category_phone.product_list) == 4
+
+    assert category_phone.add_product(lawngrass)
+    assert len(category_phone.product_list) == 5
+
+    assert not category_phone.add_product("Not product, string")
+
+    assert category_phone.add_product(smartphone)
+    assert len(category_phone.product_list) == 6
+
 
 
 def test_add_product_is_yet(product_xiaomi, product_iphone, product_samsung, product_xiaomi_same_name):
