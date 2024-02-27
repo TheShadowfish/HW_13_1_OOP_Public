@@ -57,10 +57,26 @@ class Product:
         return f"{self.title}, {str(self.__price)}. Остаток: {str(self.quantity)} шт."
 
     def __repr__(self):
+        s = f"<{self.__class__.__name__}({self.title}, {self.description}, {str(self.__price)}, {str(self.quantity)})>"
+        return s
+
+    def __len__(self):
+        return self.quantity
+
+    def __add__(self, other):
         """
-        Выводит строку типа: 'Продукт, 80 руб. Остаток: 15 шт.'
+        Для класса Product необходимо добавить возможность складывать объекты между собой таким образом,
+        чтобы результат выполнения сложения двух продуктов был сложением сумм, умноженных на количество на складе.
+        Например, для товара с ценой 100 рублей и количеством на складе 10 и товара b c ценой 200 рублей
+        и количеством на складе 2 результатом выполнения операции a + b должно стать значение,
+        полученное из 100 × 10 + 200 × 2 = 1400.
+
+        Доработать функционал сложения таким образом, чтобы можно было складывать товары только из одинаковых
+        классов продуктов. То есть если складывать товар класса «Смартфон» и товар класса «Продукт», то должна быть ошибка типа.
         """
-        return f"<{self.title}, {self.description}, {str(self.__price)},{str(self.quantity)}>"
+        if isinstance(other, Product) and type(other) == type(self):
+            return self.quantity * self.__price + other.quantity * other.__price
+        raise TypeError(f"You can't add {type(other)} to {type(self)}")
 
     @classmethod
     def __verify_data(cls, other):
@@ -72,13 +88,6 @@ class Product:
     def __eq__(self, other):
         sc = self.__verify_data(other)
         return self.title == sc
-
-    """
-    Дополнительное задание (к заданию 3) Для данного метода (добавление продукта в список продуктов Category)
-    реализуйте проверку наличия такого же товара, схожего по имени. В случае если товар уже существует, необходимо
-    сложить количество в наличии старого товара и нового. При конфликте цен выбрать ту, которая является
-    более высокой.
-    """
 
     @staticmethod
     def is_product_in_list(prod, products: list) -> int | None:
@@ -92,6 +101,41 @@ class Product:
             if prod == elem:
                 return i
         return None
+
+
+class Smartphone(Product):
+    """
+    Помимо имеющихся свойств, необходимо добавить следующие:
+    производительность,
+    модель,
+    объем встроенной памяти,
+    цвет.
+    """
+
+    def __init__(self, title: str, description: str, price: float, quantity: int,
+                 performance: str, model: str, memory: str, color: str):
+        super().__init__(title, description, price, quantity)
+        self.performance = performance
+        self.model = model
+        self.memory = memory
+        self.color = color
+
+
+class LawnGrass(Product):
+    """
+    Трава газонная
+    Помимо имеющихся свойств, необходимо добавить следующие:
+    страна-производитель,
+    срок прорастания,
+    цвет.
+    """
+
+    def __init__(self, title: str, description: str, price: float, quantity: int,
+                 manufacturer: str, germination_period: str, color: str):
+        super().__init__(title, description, price, quantity)
+        self.manufacturer = manufacturer
+        self.germination_period = germination_period
+        self.color = color
 
 
 class Category:
@@ -131,7 +175,7 @@ class Category:
 
     def add_product(self, product: Product):
         """Добавление продукта в список."""
-        if isinstance(product, Product):
+        if isinstance(product, (Product, Smartphone, LawnGrass)):
             index_if_product_exist = Product.is_product_in_list(product, self.__products)
             if index_if_product_exist is not None:
                 merged_successfully = self.merge_products(product, self.__products[index_if_product_exist])
@@ -141,13 +185,6 @@ class Category:
                 return True
         else:
             return False
-
-    """
-    Дополнительное задание (к заданию 3) Для данного метода (добавление продукта в список продуктов Category)
-    реализуйте проверку наличия такого же товара, схожего по имени. В случае если товар уже существует, необходимо
-    сложить количество в наличии старого товара и нового. При конфликте цен выбрать ту, которая является
-    более высокой.
-    """
 
     @staticmethod
     def merge_products(product, prod_in_list):
@@ -164,3 +201,58 @@ class Category:
                 names_set.append(prod.title)
 
         return len(names_set)
+
+    def __str__(self):
+        """
+        Название категории, количество продуктов: 200 шт.
+        Здесь количество продуктов считается из общего числа всех продуктов на складе.
+        Для вывода количества на складе лучше использовать магический метод len
+        !__len__ реализован для класса Products.
+        """
+        total_quantity = 0
+        for prod in self.__products:
+            total_quantity += len(prod)
+        return f"{self.title}, количество продуктов: {total_quantity}."
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}({self.title}, {self.description}, {str(self.__products)})>"
+
+
+class CategoryIterator:
+    """
+    *** Дополнительное задание**
+    Создать новый класс, который принимает на вход категорию
+    и дает возможность использовать цикл for для прохода по всем товарам данной категории.
+
+    Заодно поддерживает обращение через [] (CategoryIterator[1] дает 2 продукт (0, 1, 2..)
+    И reversed (обратную итерацию), для этого тут __getitem__ и __len__
+
+    Логичнее этот функционал воткнуть в класс Category, но раз нужен новый класс, то пусть будет новый
+
+    """
+
+    def __init__(self, category):
+        self.category = category
+
+    def __iter__(self):
+        self.current = 0
+        return self
+
+    def __getitem__(self, index):
+        if not isinstance(index, int):
+            raise TypeError(f"index must be integer (int). index: {index}")
+        if 0 <= index < len(self.category.products):
+            return self.category.products[index]
+        else:
+            raise IndexError(f"Index out of a range (0 <= {index} < {len(self.category.products)}")
+
+    def __len__(self):
+        return len(self.category.products)
+
+    def __next__(self):
+        if self.current < len(self.category.products):
+            number = self.current
+            self.current += 1
+            return self.category.products[number]
+        else:
+            raise StopIteration
