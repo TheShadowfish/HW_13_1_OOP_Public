@@ -76,8 +76,7 @@ class Product:
         """
         if isinstance(other, Product) and type(other) == type(self):
             return self.quantity * self.__price + other.quantity * other.__price
-        else:
-            raise TypeError(f"You can't add {type(other)} to {type(self)}")
+        raise TypeError(f"You can't add {type(other)} to {type(self)}")
 
     @classmethod
     def __verify_data(cls, other):
