@@ -183,15 +183,16 @@ class Smartphone(Product):
 
     def __init__(self, title: str, description: str, price: float, quantity: int,
                  performance: str, model: str, memory: str, color: str):
-        super().__init__(title, description, price, quantity)
+
         self.performance = performance
         self.model = model
         self.memory = memory
         self.color = color
-        print(self.__repr__())
+        super().__init__(title, description, price, quantity)
+        # print(self.__repr__())
 
 
-class LawnGrass(Product, MixinRepr):
+class LawnGrass(Product):
     """
     Трава газонная
     Помимо имеющихся свойств, необходимо добавить следующие:
@@ -202,14 +203,14 @@ class LawnGrass(Product, MixinRepr):
 
     def __init__(self, title: str, description: str, price: float, quantity: int,
                  manufacturer: str, germination_period: str, color: str):
-        super().__init__(title, description, price, quantity)
+
         self.manufacturer = manufacturer
         self.germination_period = germination_period
         self.color = color
-        print(self.__repr__())
+        super().__init__(title, description, price, quantity)
 
 
-class Category:
+class Category(MixinRepr):
     """
     Категория продуктов. Поля класса:
     - title: название
@@ -232,6 +233,7 @@ class Category:
 
         # Category.product_count += len(set(self.products))
         Category.product_count += Category.unique_products(self.__products)
+        # print(str(self.__repr__())
 
     @property
     def products(self):
@@ -285,8 +287,8 @@ class Category:
             total_quantity += len(prod)
         return f"{self.title}, количество продуктов: {total_quantity}."
 
-    def __repr__(self):
-        return f"<{self.__class__.__name__}({self.title}, {self.description}, {str(self.__products)})>"
+    # def __repr__(self):
+    #     return f"<{self.__class__.__name__}({self.title}, {self.description}, {str(self.__products)})>"
 
 
 class CategoryIterator:
