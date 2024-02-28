@@ -30,9 +30,9 @@ class AbsProduct(ABC):
     def __str__(self):
         pass
 
-    @abstractmethod
-    def __repr__(self):
-        pass
+    # @abstractmethod
+    # def __repr__(self):
+    #     pass
 
     @abstractmethod
     def __len__(self):
@@ -54,8 +54,18 @@ class AbsProduct(ABC):
         """
         pass
 
+class MixinRepr:
 
-class Product(AbsProduct):
+    def __init__(self, *args, **kwargs):
+        print(repr(self))
+
+    def __repr__(self):
+        print(f"СОЗДАН ОБЪЕКТ: {self.__class__.__name__}(", end='')
+        print(f"{', '.join([str(i[1]) for i in self.__dict__.items()])})\n")
+
+
+
+class Product(MixinRepr, AbsProduct):
     """
     Продукты. Поля класса:
     - title: название
@@ -69,6 +79,7 @@ class Product(AbsProduct):
         self.description = description
         self.__price = price
         self.quantity = quantity
+        print(self.__repr__())
 
     @property
     def price(self):
@@ -113,9 +124,9 @@ class Product(AbsProduct):
         """
         return f"{self.title}, {str(self.__price)}. Остаток: {str(self.quantity)} шт."
 
-    def __repr__(self):
-        s = f"<{self.__class__.__name__}({self.title}, {self.description}, {str(self.__price)}, {str(self.quantity)})>"
-        return s
+    # def __repr__(self):
+    #     s = f"<{self.__class__.__name__}({self.title}, {self.description}, {str(self.__price)}, {str(self.quantity)})>"
+    #     return s
 
     def __len__(self):
         return self.quantity
@@ -177,9 +188,10 @@ class Smartphone(Product):
         self.model = model
         self.memory = memory
         self.color = color
+        print(self.__repr__())
 
 
-class LawnGrass(Product):
+class LawnGrass(Product, MixinRepr):
     """
     Трава газонная
     Помимо имеющихся свойств, необходимо добавить следующие:
@@ -194,6 +206,7 @@ class LawnGrass(Product):
         self.manufacturer = manufacturer
         self.germination_period = germination_period
         self.color = color
+        print(self.__repr__())
 
 
 class Category:

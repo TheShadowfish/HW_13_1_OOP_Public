@@ -20,9 +20,9 @@ def main():
     for cat in category_list:
         print(cat.title)
         print(cat.description)
-        print(cat.products)
+        # print(cat.products)
         for prd in cat.products:
-            print("   " + prd.title)
+            print(prd)
             print("   " + prd.description)
             print("   " + str(prd.price))
             print("   " + str(prd.quantity))
