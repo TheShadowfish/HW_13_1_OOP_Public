@@ -7,6 +7,17 @@ class AbsProduct(ABC):
     def __init__(self):
         pass
 
+
+    @property
+    @abstractmethod
+    def price(self):
+        pass
+
+    @price.setter
+    @abstractmethod
+    def price(self, price):
+        pass
+
     @classmethod
     @abstractmethod
     def create_and_return(cls):
@@ -17,10 +28,6 @@ class AbsProduct(ABC):
 
     @abstractmethod
     def __str__(self):
-        pass
-
-    @abstractmethod
-    def print_when_start(self):
         pass
 
     @abstractmethod
@@ -48,7 +55,7 @@ class AbsProduct(ABC):
         pass
 
 
-class Product(ABC):
+class Product(AbsProduct):
     """
     Продукты. Поля класса:
     - title: название
