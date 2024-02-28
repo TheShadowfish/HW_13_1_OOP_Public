@@ -1,4 +1,54 @@
-class Product:
+from abc import abstractmethod, ABC
+
+
+class AbsProduct(ABC):
+
+    @abstractmethod
+    def __init__(self):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def create_and_return(cls):
+        """
+        Создает новый экземпляр класса и возвращает его
+        """
+        pass
+
+    @abstractmethod
+    def __str__(self):
+        pass
+
+    @abstractmethod
+    def print_when_start(self):
+        pass
+
+    @abstractmethod
+    def __repr__(self):
+        pass
+
+    @abstractmethod
+    def __len__(self):
+        pass
+
+    @abstractmethod
+    def __add__(self, other):
+        pass
+
+    @abstractmethod
+    def __eq__(self, other):
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def is_product_in_list(prod, products: list) -> int | None:
+        """
+        Возвращает номер товара, схожего по имени в списке товаров или None
+        """
+        pass
+
+
+class Product(ABC):
     """
     Продукты. Поля класса:
     - title: название
@@ -72,7 +122,8 @@ class Product:
         полученное из 100 × 10 + 200 × 2 = 1400.
 
         Доработать функционал сложения таким образом, чтобы можно было складывать товары только из одинаковых
-        классов продуктов. То есть если складывать товар класса «Смартфон» и товар класса «Продукт», то должна быть ошибка типа.
+        классов продуктов. То есть если складывать товар класса «Смартфон» и товар класса «Продукт»,
+        то должна быть ошибка типа.
         """
         if isinstance(other, Product) and type(other) == type(self):
             return self.quantity * self.__price + other.quantity * other.__price
