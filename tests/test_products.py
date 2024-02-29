@@ -31,15 +31,18 @@ def product_iphone():
 def product_blackview():
     return Product('Смартфон BV8900, зеленый', '256GB, Green, 10000 mAh, teplovision', 21000.0, 7)
 
+
 @pytest.fixture
 def smartphone():
     return Smartphone('Xiaomi Redmi Note 11 (Pro)', '1024GB, Синий', 31000.0, 14,
                       'high', 'Xiaomi Redmi Note 11', '1024GB', 'Синий')
 
+
 @pytest.fixture
 def lawngrass():
     return LawnGrass('Трава газонная голландская', 'Можно любоваться, можно курить', 7000.0, 22,
-                      'Голландия', '2 недели', 'Темно-зеленый')
+                     'Голландия', '2 недели', 'Темно-зеленый')
+
 
 def test_smartphone__init(smartphone):
     """ Корректность инициализации объектов класса Product"""
@@ -95,8 +98,6 @@ def test_product__add(product_xiaomi, product_iphone, smartphone, lawngrass):
         product_xiaomi.__add__(lawngrass)
     with pytest.raises(TypeError):
         lawngrass.__add__(smartphone)
-
-
 
 
 def test_incorrect_price(product_iphone):
@@ -172,7 +173,6 @@ def test_add_product(product_xiaomi, product_iphone, product_samsung, product_bl
 
     assert category_phone.add_product(smartphone)
     assert len(category_phone.product_list) == 6
-
 
 
 def test_add_product_is_yet(product_xiaomi, product_iphone, product_samsung, product_xiaomi_same_name):

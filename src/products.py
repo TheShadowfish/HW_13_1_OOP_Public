@@ -4,18 +4,15 @@ from abc import abstractmethod, ABC
 class AbsProduct(ABC):
 
     @abstractmethod
-    def __init__(self):
-        pass
+    def __init__(self): pass
 
     @property
     @abstractmethod
-    def price(self):
-        pass
+    def price(self): pass
 
     @price.setter
     @abstractmethod
-    def price(self, price):
-        pass
+    def price(self, price): pass
 
     @classmethod
     @abstractmethod
@@ -26,24 +23,20 @@ class AbsProduct(ABC):
         pass
 
     @abstractmethod
-    def __str__(self):
-        pass
+    def __str__(self): pass
 
     # @abstractmethod
     # def __repr__(self):
     #     pass
 
     @abstractmethod
-    def __len__(self):
-        pass
+    def __len__(self): pass
 
     @abstractmethod
-    def __add__(self, other):
-        pass
+    def __add__(self, other): pass
 
     @abstractmethod
-    def __eq__(self, other):
-        pass
+    def __eq__(self, other): pass
 
     @staticmethod
     @abstractmethod
@@ -52,6 +45,46 @@ class AbsProduct(ABC):
         Возвращает номер товара, схожего по имени в списке товаров или None
         """
         pass
+
+
+class ProductsGroup(ABC):
+    """
+    Category and Order must have properties and methods
+
+        Категория продуктов.
+        - title: название
+        - description: описание
+        - products: товары
+        
+        Заказ, в котором будет 
+        - products: ссылка на то, какой товар был куплен, в заказе может быть указан только один товар.
+          (заказы в интернет-магазинах содержат от одного до кучи товаров, но никогда ноль товаров, так и реализую)
+        - quantity: количество купленного товара.
+        - prise: итоговая стоимость.
+    """
+
+    @abstractmethod
+    def __init__(self): pass
+
+    @property
+    @abstractmethod
+    def products(self): pass
+
+    @property
+    @abstractmethod
+    def product_list(self): pass
+
+    @abstractmethod
+    def add_product(self, product): pass
+
+    @staticmethod
+    @abstractmethod
+    def merge_products(product, prod_in_list):
+        """В заказ тоже должен добавляться дополнительный экземпляр продукта, если он там есть"""
+        pass
+
+    @abstractmethod
+    def __str__(self): pass
 
 
 class MixinRepr:
@@ -199,7 +232,6 @@ class Smartphone(Product):
 
         super().__init__(title, description, price, quantity)
 
-
         # print(self.__repr__())
 
 
@@ -220,7 +252,7 @@ class LawnGrass(Product):
         super().__init__(title, description, price, quantity)
 
 
-class Category(MixinRepr):
+class Category(MixinRepr, ProductsGroup):
     """
     Категория продуктов. Поля класса:
     - title: название
@@ -244,7 +276,7 @@ class Category(MixinRepr):
         # Category.product_count += len(set(self.products))
         Category.product_count += Category.unique_products(self.__products)
         # print(str(self.__repr__())
-        
+
         super().__init__()
 
     @property
