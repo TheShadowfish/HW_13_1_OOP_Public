@@ -5,6 +5,7 @@ from src.products import Category
 from src.products import CategoryIterator
 from src.products import Smartphone
 from src.products import LawnGrass
+from src.products import Order
 
 
 @pytest.fixture
@@ -40,7 +41,7 @@ def smartphone():
 
 @pytest.fixture
 def lawngrass():
-    return LawnGrass('Трава газонная голландская', 'Можно любоваться, можно курить', 7000.0, 22,
+    return LawnGrass('Трава газонная голландская', 'Можно любоваться, можно курить', 7000.0, 1,
                      'Голландия', '2 недели', 'Темно-зеленый')
 
 
@@ -61,7 +62,7 @@ def test_lawngrass__init(lawngrass):
     assert lawngrass.title == 'Трава газонная голландская'
     assert lawngrass.description == 'Можно любоваться, можно курить'
     assert lawngrass.price == 7000.0
-    assert lawngrass.quantity == 22
+    assert lawngrass.quantity == 1
     assert lawngrass.manufacturer == 'Голландия'
     assert lawngrass.germination_period == '2 недели'
     assert lawngrass.color == 'Темно-зеленый'
@@ -82,14 +83,15 @@ def test_create_and_return_product():
 
 def test_product__str(product_blackview):
     assert product_blackview.__str__() == "Смартфон BV8900, зеленый, 21000.0. Остаток: 7 шт."
-    # assert product_blackview.__repr__() == ('<Product(Смартфон BV8900, зеленый, 256GB, Green, 10000 mAh, teplovision, '
+    # assert product_blackview.__repr__() == ('<Product(Смартфон BV8900, зеленый, 256GB, Green,'
+    #                                         ' 10000 mAh, teplovision, '
     #                                         '21000.0, 7)>')
 
 
 def test_product__add(product_xiaomi, product_iphone, smartphone, lawngrass):
     assert product_xiaomi.__add__(product_iphone) == 2114000.0
     assert smartphone.__add__(smartphone) == 868000.0
-    assert lawngrass.__add__(lawngrass) == 308000.0
+    assert lawngrass.__add__(lawngrass) == 14000.0
     with pytest.raises(TypeError):
         product_xiaomi.__add__('Xiaomi Redmi Note 9')
     with pytest.raises(TypeError):
@@ -242,12 +244,98 @@ def test_category__str__(product_xiaomi, product_iphone, product_samsung):
     # assert print(category_phone) == 'Смартфоны, количество продуктов: 27.'
 
 
+def test_order__init__(product_xiaomi, lawngrass):
+    order_1 = Order([lawngrass, lawngrass])
+    order_2 = Order([lawngrass])
+    order_3 = Order(lawngrass)
+    order_4 = Order([product_xiaomi, lawngrass])
+
+    # assert isinstance(order_1.products, list)
+    # assert len(order_1.products) == 1
+
+    assert order_1.quantity == 2
+    assert order_1.price == 14000
+    assert len(order_1.products) == 2
+
+    assert order_2.quantity == 1
+    assert order_2.price == 7000
+
+    assert order_3.quantity == 1
+    assert order_3.price == 7000
+    assert isinstance(order_3.products, list)
+
+    assert order_4.quantity == 15
+    assert order_4.price == 7000 + 14 * 31000.0
+    assert len(order_4.products) == 2
+
+
+def test_order_product_list(product_xiaomi, lawngrass):
+    order = Order([product_xiaomi, lawngrass])
+
+    assert order.product_list
+    # assert category_phone.description == 'описание категории'
+    for product_str in order.product_list:
+        assert isinstance(product_str, str)
+    #     # str(product_str) == product_string[i]
+    assert len(order.product_list) == 2
+
+
+def test_add_order(product_xiaomi, product_iphone, product_samsung, product_blackview, smartphone, lawngrass):
+    order_phone = Order([product_xiaomi, product_iphone, product_samsung])
+    assert len(order_phone.product_list) == 3
+
+    assert order_phone.add_product(product_blackview)
+
+    assert len(order_phone.product_list) == 4
+
+    assert order_phone.add_product(lawngrass)
+    assert len(order_phone.product_list) == 5
+
+    assert not order_phone.add_product("Not product, string")
+
+    assert order_phone.add_product(smartphone)
+    assert len(order_phone.product_list) == 6
+
+
+def test_add_order_product_is_yet(product_xiaomi, product_iphone, product_samsung, product_xiaomi_same_name, lawngrass):
+    order_phone = Order([product_xiaomi, product_iphone, product_samsung])
+
+    quantity = product_xiaomi.quantity + product_xiaomi_same_name.quantity
+    price = max([product_xiaomi.price, product_xiaomi_same_name.price])
+
+    assert len(order_phone.product_list) == 3
+    #
+    assert order_phone.add_product(product_xiaomi_same_name)
+    # assert not category_phone.add_product("Not product, string")
+    assert len(order_phone.product_list) == 3
+    assert order_phone.products[0].quantity == quantity
+    assert order_phone.products[0].price == price
+    assert price == 35000.0
+
+    order_lawn = Order(lawngrass)
+    assert order_lawn.add_product(lawngrass)
+    assert len(order_lawn.product_list) == 1
+    assert order_lawn.quantity == 2
+    assert order_lawn.price == 14000.0
+
+
+def test_order__str__(lawngrass, product_iphone, product_samsung):
+    order = Order([lawngrass, product_iphone, product_samsung])
+    assert order.__str__() == f"Количество продуктов: 14, общая стоимость {7000.0 + 210000.0 * 8 + 180000.0 * 5}."
+
+
 def test_category_iterator__init__(product_xiaomi, product_iphone, product_samsung):
     category_phone = Category('Смартфоны', 'описание категории', [product_xiaomi, product_iphone, product_samsung])
     cat_iterator = CategoryIterator(category_phone)
     assert isinstance(cat_iterator, CategoryIterator)
     assert isinstance(cat_iterator.category.products, list)
     assert cat_iterator.category is category_phone
+
+    order_phone = Order([product_xiaomi, product_iphone, product_samsung])
+    ord_iterator = CategoryIterator(order_phone)
+    assert isinstance(ord_iterator, CategoryIterator)
+    assert isinstance(ord_iterator.category.products, list)
+    assert ord_iterator.category is order_phone
 
     # assert CategoryIterator(category_phone)
     # assert category_phone.title == 'Смартфоны'

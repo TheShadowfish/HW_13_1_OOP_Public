@@ -16,11 +16,7 @@ class AbsProduct(ABC):
 
     @classmethod
     @abstractmethod
-    def create_and_return(cls, title: str, description: str, price: float, quantity: int):
-        """
-        Создает новый экземпляр класса и возвращает его
-        """
-        pass
+    def create_and_return(cls, title: str, description: str, price: float, quantity: int): pass
 
     @abstractmethod
     def __str__(self): pass
@@ -40,11 +36,7 @@ class AbsProduct(ABC):
 
     @staticmethod
     @abstractmethod
-    def is_product_in_list(prod, products: list) -> int | None:
-        """
-        Возвращает номер товара, схожего по имени в списке товаров или None
-        """
-        pass
+    def is_product_in_list(prod, products: list) -> int | None: pass
 
 
 class ProductsGroup(ABC):
@@ -79,9 +71,7 @@ class ProductsGroup(ABC):
 
     @staticmethod
     @abstractmethod
-    def merge_products(product, prod_in_list):
-        """В заказ тоже должен добавляться дополнительный экземпляр продукта, если он там есть"""
-        pass
+    def merge_products(product, prod_in_list): pass
 
     @abstractmethod
     def __str__(self): pass
@@ -273,9 +263,7 @@ class Category(MixinRepr, ProductsGroup):
 
         Category.category_count += 1
 
-        # Category.product_count += len(set(self.products))
         Category.product_count += Category.unique_products(self.__products)
-        # print(str(self.__repr__())
 
         super().__init__()
 
@@ -333,6 +321,83 @@ class Category(MixinRepr, ProductsGroup):
 
     # def __repr__(self):
     #     return f"<{self.__class__.__name__}({self.title}, {self.description}, {str(self.__products)})>"
+
+
+class Order(MixinRepr, ProductsGroup):
+    """
+    Заказ, в котором будет
+    - products: ссылка на то, какой товар был куплен, в заказе может быть указан только один товар.
+              (заказы в интернет-магазинах содержат от одного до кучи товаров, но никогда ноль товаров, так и реализую)
+    - quantity: количество купленного товара.
+    - prise: итоговая стоимость.
+        """
+
+    def __init__(self, products):
+
+        self.__products = []
+        if isinstance(products, list):
+            self.__products.extend(products)
+        else:
+            self.__products.append(products)
+
+        # self.quantity = None
+        # self.prise = None
+
+        # for prod in list(products):
+        #     self.quantity += prod.quantity
+        #     self.prise += prod.prise * prod.quantity
+
+        super().__init__()
+
+    @property
+    def products(self):
+        return self.__products
+
+    @property
+    def product_list(self):
+        products_strings = []
+        for prod in self.__products:
+            products_strings.append(str(prod))
+        return products_strings
+
+    @property
+    def quantity(self):
+        quantity_list = [prod.quantity for prod in self.__products]
+        return sum(quantity_list)
+
+    # Геттер для fullname
+    @property
+    def price(self):
+        price_list = [prod.quantity * prod.price for prod in self.__products]
+        return sum(price_list)
+
+    def add_product(self, product):
+        """Добавление продукта в список."""
+        if isinstance(product, (Product, Smartphone, LawnGrass)):
+            index_if_product_exist = Product.is_product_in_list(product, self.__products)
+            if index_if_product_exist is not None:
+                merged_successfully = self.merge_products(product, self.__products[index_if_product_exist])
+                return merged_successfully
+            else:
+                self.__products.append(product)
+                return True
+        else:
+            return False
+
+    @staticmethod
+    def merge_products(product, prod_in_list):
+        prod_in_list.quantity += product.quantity
+        prod_in_list.price = max([prod_in_list.price, product.price])
+        return True
+
+    def __str__(self):
+        """
+        Количество продуктов в заказе: 200 шт., стоимость.
+        Здесь количество продуктов считается из общего числа всех продуктов на складе.
+        Для вывода количества на складе лучше использовать магический метод len
+        !__len__ реализован для класса Products.
+        """
+        return f"Количество продуктов: {self.quantity}, общая стоимость {self.price}."
 
 
 class CategoryIterator:
