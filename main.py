@@ -1,4 +1,7 @@
 from src.products import Product
+from src.products import Smartphone
+from src.products import LawnGrass
+
 
 from src.json_parser import file_exist
 from src.json_parser import load_json
@@ -20,9 +23,9 @@ def main():
     for cat in category_list:
         print(cat.title)
         print(cat.description)
-        print(cat.products)
+        # print(cat.products)
         for prd in cat.products:
-            print("   " + prd.title)
+            print(prd)
             print("   " + prd.description)
             print("   " + str(prd.price))
             print("   " + str(prd.quantity))
@@ -31,6 +34,16 @@ def main():
     prod.price = 1000.0
 
     print(f"Цена по итогу: {prod}")
+
+    sm = Smartphone('Xiaomi Redmi Note 11 (Pro)', '1024GB, Синий', 31000.0, 14,
+                          'high', 'Xiaomi Redmi Note 11', '1024GB', 'Синий')
+
+    lg = LawnGrass('Трава газонная голландская', 'Можно любоваться, можно курить', 7000.0,
+                    22, 'Голландия', '2 недели', 'Темно-зеленый')
+
+
+    print(f"\nSmartphone\n{sm}")
+    print(f"\nLawnGrass\n{lg}")
 
 
 if __name__ == '__main__':
