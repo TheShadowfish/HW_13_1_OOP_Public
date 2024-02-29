@@ -27,7 +27,7 @@ def file_exist(filename: str) -> str | None:
         return os.path.join(base_dir, filename)
     else:
         raise FileNotFoundError(f"Файл {filename} не найден (пути поиска: '{base_dir}, {base_dir}')")
-        return None
+        # return None
 
 
 def load_json(filename) -> list | None:
@@ -43,10 +43,10 @@ def load_json(filename) -> list | None:
                 return data_json
         except Exception as e:
             raise str(e)
-            return None
+            # return None
     else:
         raise FileNotFoundError(f"Файл {filename} не найден")
-        return None
+        # return None
 
 
 def json_parse(data_json) -> list[Category]:
