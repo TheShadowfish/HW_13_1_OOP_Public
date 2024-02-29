@@ -7,7 +7,6 @@ class AbsProduct(ABC):
     def __init__(self):
         pass
 
-
     @property
     @abstractmethod
     def price(self):
@@ -20,7 +19,7 @@ class AbsProduct(ABC):
 
     @classmethod
     @abstractmethod
-    def create_and_return(cls):
+    def create_and_return(cls, title: str, description: str, price: float, quantity: int):
         """
         Создает новый экземпляр класса и возвращает его
         """
@@ -54,15 +53,21 @@ class AbsProduct(ABC):
         """
         pass
 
+
 class MixinRepr:
 
     def __init__(self, *args, **kwargs):
-        print(repr(self))
+        super().__init__(*args, **kwargs)
+        print(self.__repr__())
+        # print(repr(self))
 
     def __repr__(self):
-        print(f"СОЗДАН ОБЪЕКТ: {self.__class__.__name__}(", end='')
-        print(f"{', '.join([str(i[1]) for i in self.__dict__.items()])})\n")
+        #
+        # print(f"СОЗДАН ОБЪЕКТ: {self.__class__.__name__}(", end='')
+        # print(f"{', '.join([str(i[1]) for i in self.__dict__.items()])})\n")
+        repr_list = [str(i[0]) + ': ' + str(i[1]) for i in self.__dict__.items()]
 
+        return f"СОЗДАН ОБЪЕКТ: {self.__class__.__name__}({', '.join(repr_list)})"
 
 
 class Product(MixinRepr, AbsProduct):
@@ -75,11 +80,14 @@ class Product(MixinRepr, AbsProduct):
     """
 
     def __init__(self, title: str, description: str, price: float, quantity: int):
+        #
         self.title = title
         self.description = description
         self.__price = price
         self.quantity = quantity
-        print(self.__repr__())
+        super().__init__()
+
+        # print(self.__repr__())
 
     @property
     def price(self):
@@ -125,7 +133,8 @@ class Product(MixinRepr, AbsProduct):
         return f"{self.title}, {str(self.__price)}. Остаток: {str(self.quantity)} шт."
 
     # def __repr__(self):
-    #     s = f"<{self.__class__.__name__}({self.title}, {self.description}, {str(self.__price)}, {str(self.quantity)})>"
+    #     s = f"<{self.__class__.__name__}({self.title}, {self.description}, {str(self.__price)},
+    #     {str(self.quantity)})>"
     #     return s
 
     def __len__(self):
@@ -143,7 +152,7 @@ class Product(MixinRepr, AbsProduct):
         классов продуктов. То есть если складывать товар класса «Смартфон» и товар класса «Продукт»,
         то должна быть ошибка типа.
         """
-        if isinstance(other, Product) and type(other) == type(self):
+        if isinstance(other, Product) and type(other) is type(self):
             return self.quantity * self.__price + other.quantity * other.__price
         raise TypeError(f"You can't add {type(other)} to {type(self)}")
 
@@ -183,12 +192,14 @@ class Smartphone(Product):
 
     def __init__(self, title: str, description: str, price: float, quantity: int,
                  performance: str, model: str, memory: str, color: str):
-
         self.performance = performance
         self.model = model
         self.memory = memory
         self.color = color
+
         super().__init__(title, description, price, quantity)
+
+
         # print(self.__repr__())
 
 
@@ -203,7 +214,6 @@ class LawnGrass(Product):
 
     def __init__(self, title: str, description: str, price: float, quantity: int,
                  manufacturer: str, germination_period: str, color: str):
-
         self.manufacturer = manufacturer
         self.germination_period = germination_period
         self.color = color
@@ -234,6 +244,8 @@ class Category(MixinRepr):
         # Category.product_count += len(set(self.products))
         Category.product_count += Category.unique_products(self.__products)
         # print(str(self.__repr__())
+        
+        super().__init__()
 
     @property
     def products(self):
