@@ -1,6 +1,6 @@
 import pytest
-import mock # для тестирования функции с пользовательским вводом    test_product_lower_price_dialog()
-import builtins # для тестирования функции с пользовательским вводом
+import mock  # для тестирования функции с пользовательским вводом    test_product_lower_price_dialog()
+import builtins  # для тестирования функции с пользовательским вводом
 
 from src.products import Product
 from src.products import Category
@@ -80,7 +80,7 @@ def test_product__init(product_xiaomi):
 
 def test_product_lower_price_dialog(product_xiaomi):
     product_xiaomi.price = 33000.0
-    assert  product_xiaomi.price == 33000.0
+    assert product_xiaomi.price == 33000.0
 
     with mock.patch.object(builtins, 'input', lambda _: 'n'):
         product_xiaomi.price = 30000.0
@@ -94,26 +94,6 @@ def test_product_lower_price_dialog(product_xiaomi):
         product_xiaomi.price = 30000.0
         assert product_xiaomi.price == 30000.0
 
-
-
-# """
-# The function to test (would usually be loaded from a module outside this file).
-# """
-# def user_prompt():
-#     ans = input('Enter a number: ')
-#     try:
-#         float(ans)
-#     except:
-#         import sys
-#         sys.exit('NaN')
-#     return 'Your number is {}'.format(ans)
-#
-# """
-# This test will mock input of '19'
-# """
-# def test_user_prompt_ok():
-#     with mock.patch.object(builtins, 'input', lambda _: '19'):
-#         assert user_prompt() == 'Your number is 19'
 
 def test_create_and_return_product():
     assert isinstance(
@@ -164,13 +144,6 @@ def test_is_product_in_list(product_xiaomi, product_xiaomi_same_name, product_sa
     assert Product.is_product_in_list(product_xiaomi, [product_iphone, product_xiaomi_same_name]) == 1
     assert Product.is_product_in_list(product_xiaomi, ['prod1', 'prod2', 'Xiaomi Redmi Note 11', 'prod3']) == 2
     assert Product.is_product_in_list('Xiaomi Redmi Note 11', [product_iphone, product_xiaomi_same_name]) == 1
-
-
-#
-# def test_operation__verify_data(one_right_dict_fixture):
-#     op1 = Operation(one_right_dict_fixture)
-#     with pytest.raises(TypeError):
-#         op1.__eq__('no_operation_no_datetime')
 
 
 def test_category__init__(product_xiaomi, product_iphone, product_samsung):
@@ -246,6 +219,22 @@ def test_add_product_is_yet(product_xiaomi, product_iphone, product_samsung, pro
     assert category_phone.products[0].quantity == quantity
     assert category_phone.products[0].price == price
     assert price == 35000.0
+
+
+def test_product_avg(product_xiaomi, product_iphone, product_samsung, product_xiaomi_same_name):
+    category_phone = Category('Смартфоны', 'описание категории',
+                            [product_xiaomi, product_iphone, product_samsung])
+
+    category_phone_no_products = Category('Смартфоны', 'описание категории',
+                            [])
+
+    # ничего, что средний ценник на количество нормально не делится из-за float?
+    # 140333.33333333334 != 140333
+
+    avg = (product_xiaomi.price + product_iphone.price + product_samsung.price) / 3
+
+    assert category_phone.products_avg() == avg
+    assert category_phone_no_products.products_avg() == 0
 
 
 def test_category_category_count(product_xiaomi, product_iphone, product_samsung):
@@ -350,6 +339,18 @@ def test_add_order(product_xiaomi, product_iphone, product_samsung, product_blac
     assert order_phone.add_product(smartphone)
     assert len(order_phone.product_list) == 6
 
+def test_add_order_zero_quantity(product_xiaomi, product_iphone, product_samsung):
+    order_phone = Order([product_xiaomi, product_iphone, product_samsung])
+
+    product_zero = Product(product_iphone.title, product_iphone.description, product_iphone.price, 0)
+    product_negative = Product(product_iphone.title, product_iphone.description, product_iphone.price, -1)
+
+
+    with pytest.raises(ValueError, match='Товар с нулевым количеством не может быть добавлен'):
+        assert order_phone.add_product(product_zero)
+
+    with pytest.raises(ValueError, match='с ОТРИЦАТЕЛЬНЫМ количеством'):
+        assert order_phone.add_product(product_negative)
 
 def test_add_order_product_is_yet(product_xiaomi, product_iphone, product_samsung, product_xiaomi_same_name, lawngrass):
     order_phone = Order([product_xiaomi, product_iphone, product_samsung])
@@ -372,6 +373,12 @@ def test_add_order_product_is_yet(product_xiaomi, product_iphone, product_samsun
     assert order_lawn.quantity == 2
     assert order_lawn.price == 14000.0
 
+
+    # with pytest.raises(ValueError, match='Товар с нулевым количеством не может быть добавлен'):
+    #     assert category_phone.add_product(product_zero)
+    #
+    # with pytest.raises(ValueError, match='с ОТРИЦАТЕЛЬНЫМ количеством'):
+    #     assert category_phone.add_product(product_negative)
 
 def test_order__str__(lawngrass, product_iphone, product_samsung):
     order = Order([lawngrass, product_iphone, product_samsung])

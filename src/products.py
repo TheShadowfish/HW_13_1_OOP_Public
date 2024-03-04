@@ -336,6 +336,20 @@ class Category(MixinRepr, ProductsGroup):
     # def __repr__(self):
     #     return f"<{self.__class__.__name__}({self.title}, {self.description}, {str(self.__products)})>"
 
+    def products_avg(self):
+        """
+        В классе «Категории» реализовать метод, который подсчитывает средний ценник всех товаров.
+        С помощью исключений обработать случай, когда в категории нет товаров и сумма всех товаров будет делиться на ноль.
+        В случае, если такое происходит, возвращать ноль.
+        """
+        try:
+            prices = [product.price for product in self.__products]
+            sum(prices)
+            return sum(prices) / len(self.__products)
+
+        except ZeroDivisionError:
+            return 0
+
 
 class Order(MixinRepr, ProductsGroup):
     """
@@ -386,8 +400,18 @@ class Order(MixinRepr, ProductsGroup):
         return sum(price_list)
 
     def add_product(self, product):
-        """Добавление продукта в список."""
+        """Добавление продукта в список.
+        Класс заказ просто выдает исключение при добавлении товара с нулевым количеством
+        В отличие от класса категория, добавление подобного продукта в который прерывает работу программы совсем
+        """
+
+
         if isinstance(product, (Product, Smartphone, LawnGrass)):
+            if product.quantity == 0:
+                raise ValueError('Товар с нулевым количеством не может быть добавлен')
+            if product.quantity < 0:
+                raise ValueError('Товар с ОТРИЦАТЕЛЬНЫМ количеством не может быть добавлен')
+
             index_if_product_exist = Product.is_product_in_list(product, self.__products)
             if index_if_product_exist is not None:
                 merged_successfully = self.merge_products(product, self.__products[index_if_product_exist])
@@ -397,6 +421,7 @@ class Order(MixinRepr, ProductsGroup):
                 return True
         else:
             return False
+
 
     @staticmethod
     def merge_products(product, prod_in_list):
