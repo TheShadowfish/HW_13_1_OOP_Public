@@ -1,4 +1,6 @@
 import pytest
+import mock # для тестирования функции с пользовательским вводом    test_product_lower_price_dialog()
+import builtins # для тестирования функции с пользовательским вводом
 
 from src.products import Product
 from src.products import Category
@@ -76,6 +78,43 @@ def test_product__init(product_xiaomi):
     assert product_xiaomi.quantity == 14
 
 
+def test_product_lower_price_dialog(product_xiaomi):
+    product_xiaomi.price = 33000.0
+    assert  product_xiaomi.price == 33000.0
+
+    with mock.patch.object(builtins, 'input', lambda _: 'n'):
+        product_xiaomi.price = 30000.0
+        assert product_xiaomi.price == 33000.0
+
+    with mock.patch.object(builtins, 'input', lambda _: 'not y'):
+        product_xiaomi.price = 30000.0
+        assert product_xiaomi.price == 33000.0
+
+    with mock.patch.object(builtins, 'input', lambda _: 'y'):
+        product_xiaomi.price = 30000.0
+        assert product_xiaomi.price == 30000.0
+
+
+
+# """
+# The function to test (would usually be loaded from a module outside this file).
+# """
+# def user_prompt():
+#     ans = input('Enter a number: ')
+#     try:
+#         float(ans)
+#     except:
+#         import sys
+#         sys.exit('NaN')
+#     return 'Your number is {}'.format(ans)
+#
+# """
+# This test will mock input of '19'
+# """
+# def test_user_prompt_ok():
+#     with mock.patch.object(builtins, 'input', lambda _: '19'):
+#         assert user_prompt() == 'Your number is 19'
+
 def test_create_and_return_product():
     assert isinstance(
         Product.create_and_return('Iphone 15', '512GB, Gray space', 210000.0, 8), Product)
@@ -143,19 +182,13 @@ def test_category__init__(product_xiaomi, product_iphone, product_samsung):
     assert len(category_phone.products) == 3
 
 
-# @pytest.mark.parametrize("product_string", [
-#     "Xiaomi Redmi Note 11, 31000.0. Остаток: 14 шт.",
-#     "Samsung Galaxy C23 Ultra, 180000.0. Остаток: 5 шт.",
-#     "Iphone 15, 210000.0. Остаток: 8 шт."])
 def test_category_product_list(product_xiaomi, product_iphone, product_samsung):
     category_phone = Category('Смартфоны', 'описание категории',
                               [product_xiaomi, product_iphone, product_samsung])
 
     assert category_phone.product_list
-    # assert category_phone.description == 'описание категории'
     for product_str in category_phone.product_list:
         assert isinstance(product_str, str)
-    #     # str(product_str) == product_string[i]
     assert len(category_phone.product_list) == 3
 
 
@@ -175,6 +208,27 @@ def test_add_product(product_xiaomi, product_iphone, product_samsung, product_bl
 
     assert category_phone.add_product(smartphone)
     assert len(category_phone.product_list) == 6
+
+
+def test_add_product_zero_quantity(product_xiaomi, product_iphone, product_samsung):
+    category_phone = Category('Смартфоны', 'описание категории',
+                              [product_xiaomi, product_iphone, product_samsung])
+
+    product_zero = Product(product_iphone.title, product_iphone.description, product_iphone.price, 0)
+    product_negative = Product(product_iphone.title, product_iphone.description, product_iphone.price, -1)
+
+    # Просили ПРЕРЫВАТЬ работу программы, значит будем прерывать
+    with pytest.raises(SystemExit):
+        assert category_phone.add_product(product_zero)
+
+    with pytest.raises(SystemExit):
+        assert category_phone.add_product(product_negative)
+
+    # with pytest.raises(ValueError, match='Товар с нулевым количеством не может быть добавлен'):
+    #     assert category_phone.add_product(product_zero)
+    #
+    # with pytest.raises(ValueError, match='с ОТРИЦАТЕЛЬНЫМ количеством'):
+    #     assert category_phone.add_product(product_negative)
 
 
 def test_add_product_is_yet(product_xiaomi, product_iphone, product_samsung, product_xiaomi_same_name):

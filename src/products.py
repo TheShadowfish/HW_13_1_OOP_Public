@@ -116,16 +116,15 @@ class Product(MixinRepr, AbsProduct):
     def price(self):
         return self.__price
 
-    """
-    В случае если цена равна или ниже нуля, выведите сообщение в консоль, что цена введена некорректная, 
-    при этом новую цену устанавливать не нужно.
-    Дополнительное задание (к заданию 4) В случае если цена товара понижается, 
-    добавьте логику подтверждения пользователем вручную через ввод y (значит yes) или n (значит no) 
-    для согласия понизить цену или для отмены действия соответственно.
-    """
-
     @price.setter
     def price(self, price):
+        """
+        В случае если цена равна или ниже нуля, выведите сообщение в консоль, что цена введена некорректная,
+        при этом новую цену устанавливать не нужно.
+        Дополнительное задание (к заданию 4) В случае если цена товара понижается,
+        добавьте логику подтверждения пользователем вручную через ввод y (значит yes) или n (значит no)
+        для согласия понизить цену или для отмены действия соответственно.
+        """
 
         if price <= 0:
             print(f"Цена введена некорректная.")
@@ -133,12 +132,14 @@ class Product(MixinRepr, AbsProduct):
         elif price < self.__price:
             while True:
                 print(f"Товар: {self}, новая цена: {price} (ниже)")
-                user_input = input("Вы действительно хотите установить более низкую цену? 'y'- да, 'n'-нет")
+                user_input = input("Вы действительно хотите установить более низкую цену? 'y'- да, 'n' (или любое другое значение) - нет")
 
                 if user_input == 'y':
                     self.__price = price
                     break
                 elif user_input == 'n':
+                    break
+                else:
                     break
 
         else:
@@ -154,11 +155,6 @@ class Product(MixinRepr, AbsProduct):
         Выводит строку типа: 'Продукт, 80 руб. Остаток: 15 шт.'
         """
         return f"{self.title}, {str(self.__price)}. Остаток: {str(self.quantity)} шт."
-
-    # def __repr__(self):
-    #     s = f"<{self.__class__.__name__}({self.title}, {self.description}, {str(self.__price)},
-    #     {str(self.quantity)})>"
-    #     return s
 
     def __len__(self):
         return self.quantity
@@ -279,17 +275,35 @@ class Category(MixinRepr, ProductsGroup):
         return products_strings
 
     def add_product(self, product: Product):
-        """Добавление продукта в список."""
-        if isinstance(product, (Product, Smartphone, LawnGrass)):
-            index_if_product_exist = Product.is_product_in_list(product, self.__products)
-            if index_if_product_exist is not None:
-                merged_successfully = self.merge_products(product, self.__products[index_if_product_exist])
-                return merged_successfully
+        """
+        Добавление продукта в список.
+        При добавлении товара с нулевым количеством выкидывает ValueError
+        """
+        try:
+
+            if isinstance(product, (Product, Smartphone, LawnGrass)):
+                if product.quantity == 0:
+                    raise ValueError('Товар с нулевым количеством не может быть добавлен')
+                if product.quantity < 0:
+                    raise ValueError('Товар с ОТРИЦАТЕЛЬНЫМ количеством не может быть добавлен')
+
+                index_if_product_exist = Product.is_product_in_list(product, self.__products)
+                if index_if_product_exist is not None:
+                    merged_successfully = self.merge_products(product, self.__products[index_if_product_exist])
+                    return merged_successfully
+                else:
+                    self.__products.append(product)
+                    return True
             else:
-                self.__products.append(product)
-                return True
-        else:
-            return False
+                return False
+        except ValueError:
+            print('При добавлении товара с нулевым количеством работа программы будет прервана согласно тех.заданию')
+            exit()
+        finally:
+            print('Отработано добавление товара')
+
+
+
 
     @staticmethod
     def merge_products(product, prod_in_list):

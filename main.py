@@ -45,6 +45,17 @@ def main():
     print(f"\nSmartphone\n{sm}")
     print(f"\nLawnGrass\n{lg}")
 
+    print(f"\nТовар с нулевым количеством должен завершать всё")
+    print(category_list[1])
+    print(category_list[1].products[0])
+
+    tv_zero = Product("tv_zero", "tv_zero - криптид: товар которого всегда 0", 300000.0, 0)
+
+    category_list[1].add_product(tv_zero)
+
+    # код не выполняется
+    print("Этот код не будет выполнен из-за попытки добавления товара с нулевым количеством")
+
 
 if __name__ == '__main__':
     main()
