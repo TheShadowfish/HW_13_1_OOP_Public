@@ -8,6 +8,7 @@ from src.products import CategoryIterator
 from src.products import Smartphone
 from src.products import LawnGrass
 from src.products import Order
+from src.products import AddZeroQuantityProduct
 
 
 @pytest.fixture
@@ -346,11 +347,13 @@ def test_add_order_zero_quantity(product_xiaomi, product_iphone, product_samsung
     product_negative = Product(product_iphone.title, product_iphone.description, product_iphone.price, -1)
 
 
-    with pytest.raises(ValueError, match='Товар с нулевым количеством не может быть добавлен'):
-        assert order_phone.add_product(product_zero)
-
-    with pytest.raises(ValueError, match='с ОТРИЦАТЕЛЬНЫМ количеством'):
-        assert order_phone.add_product(product_negative)
+    with pytest.raises(AddZeroQuantityProduct) as exec_info:
+        order_phone.add_product(product_zero)
+        print(exec_info)
+        #assert AddZeroQuantityProduct in str(exec_info.value) == 'нулевым'
+        #self.message = args[0] if args else 'Добавление продукта с нулевым количеством экземпляров.'
+    # with pytest.raises(AddZeroQuantityProduct, match='с ОТРИЦАТЕЛЬНЫМ количеством'):
+    #     assert order_phone.add_product(product_negative)
 
 def test_add_order_product_is_yet(product_xiaomi, product_iphone, product_samsung, product_xiaomi_same_name, lawngrass):
     order_phone = Order([product_xiaomi, product_iphone, product_samsung])

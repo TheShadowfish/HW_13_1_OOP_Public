@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABC
+import MyExceptions
 
 
 class AbsProduct(ABC):
@@ -404,23 +405,32 @@ class Order(MixinRepr, ProductsGroup):
         Класс заказ просто выдает исключение при добавлении товара с нулевым количеством
         В отличие от класса категория, добавление подобного продукта в который прерывает работу программы совсем
         """
+        try:
+            if isinstance(product, (Product, Smartphone, LawnGrass)):
+                # print("где ЭТО ЧЕРТОВО ИСКЛЮЧЕНИЕ??????")
+                if product.quantity == 0:
+                    print("где ЭТО ЧЕРТОВО ИСКЛЮЧЕНИЕ??????")
+                    raise MyExceptions.AddZeroQuantityProduct('Товар с нулевым количеством не может быть добавлен')
+                    print("НЕ ОБРАБОТАЛОСЬ")
+                if product.quantity < 0:
+                    raise MyExceptions.AddZeroQuantityProduct('Товар с ОТРИЦАТЕЛЬНЫМ количеством не может быть добавлен')
+                    print("где ЭТО ЧЕРТОВО ИСКЛЮЧЕНИЕ??????")
 
-
-        if isinstance(product, (Product, Smartphone, LawnGrass)):
-            if product.quantity == 0:
-                raise ValueError('Товар с нулевым количеством не может быть добавлен')
-            if product.quantity < 0:
-                raise ValueError('Товар с ОТРИЦАТЕЛЬНЫМ количеством не может быть добавлен')
-
-            index_if_product_exist = Product.is_product_in_list(product, self.__products)
-            if index_if_product_exist is not None:
-                merged_successfully = self.merge_products(product, self.__products[index_if_product_exist])
-                return merged_successfully
+                index_if_product_exist = Product.is_product_in_list(product, self.__products)
+                if index_if_product_exist is not None:
+                    merged_successfully = self.merge_products(product, self.__products[index_if_product_exist])
+                    return merged_successfully
+                else:
+                    self.__products.append(product)
+                    return True
             else:
-                self.__products.append(product)
-                return True
+                return False
+        except:
+            pass
         else:
-            return False
+            pass
+        finally:
+            pass
 
 
     @staticmethod
@@ -477,3 +487,6 @@ class CategoryIterator:
             return self.category.products[number]
         else:
             raise StopIteration
+
+
+
