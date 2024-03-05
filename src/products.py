@@ -1,5 +1,7 @@
 from abc import abstractmethod, ABC
-import MyExceptions
+
+
+# import MyExceptions
 
 
 class AbsProduct(ABC):
@@ -133,7 +135,8 @@ class Product(MixinRepr, AbsProduct):
         elif price < self.__price:
             while True:
                 print(f"Товар: {self}, новая цена: {price} (ниже)")
-                user_input = input("Вы действительно хотите установить более низкую цену? 'y'- да, 'n' (или любое другое значение) - нет")
+                user_input = input(
+                    "Вы действительно хотите установить более низкую цену? 'y'- да, 'n' (или любое другое значение) - нет")
 
                 if user_input == 'y':
                     self.__price = price
@@ -280,6 +283,8 @@ class Category(MixinRepr, ProductsGroup):
         Добавление продукта в список.
         При добавлении товара с нулевым количеством выкидывает ValueError
         """
+        # return_bool = False
+
         try:
 
             if isinstance(product, (Product, Smartphone, LawnGrass)):
@@ -290,27 +295,31 @@ class Category(MixinRepr, ProductsGroup):
 
                 index_if_product_exist = Product.is_product_in_list(product, self.__products)
                 if index_if_product_exist is not None:
-                    merged_successfully = self.merge_products(product, self.__products[index_if_product_exist])
-                    return merged_successfully
+                    # merged_successfully = self.merge_products(product, self.__products[index_if_product_exist])
+                    # return merged_successfully
+                    #
+                    self.merge_products(product, self.__products[index_if_product_exist])
                 else:
                     self.__products.append(product)
-                    return True
+                    # return_bool = True
             else:
-                return False
+                # return_bool = False
+                raise ValueError('Можно добавить только экземпляр класса "Товар"')
         except ValueError:
             print('При добавлении товара с нулевым количеством работа программы будет прервана согласно тех.заданию')
             exit()
+        else:
+            print(f"Товар корректно добавлен")
+
         finally:
             print('Отработано добавление товара')
-
-
-
+            # return return_bool
 
     @staticmethod
     def merge_products(product, prod_in_list):
         prod_in_list.quantity += product.quantity
         prod_in_list.price = max([prod_in_list.price, product.price])
-        return True
+        # return True
 
     @staticmethod
     def unique_products(products: list[Product]) -> int:
@@ -369,13 +378,6 @@ class Order(MixinRepr, ProductsGroup):
         else:
             self.__products.append(products)
 
-        # self.quantity = None
-        # self.prise = None
-
-        # for prod in list(products):
-        #     self.quantity += prod.quantity
-        #     self.prise += prod.prise * prod.quantity
-
         super().__init__()
 
     @property
@@ -404,40 +406,39 @@ class Order(MixinRepr, ProductsGroup):
         """Добавление продукта в список.
         Класс заказ просто выдает исключение при добавлении товара с нулевым количеством
         В отличие от класса категория, добавление подобного продукта в который прерывает работу программы совсем
+
+        Создать класс исключения, который отвечает за обработку событий, когда в «Категорию» или в «Заказ» добавляется товар с нулевым количеством.
+        - Исключение должно вызываться и выводить соответствующее сообщение.
+        - При этом важно в случае успешного добавления товара вывести сообщение о том, что товар добавлен.
+        - Также при любом исходе вывести сообщение, что обработка добавления товара завершена.
         """
         try:
             if isinstance(product, (Product, Smartphone, LawnGrass)):
-                # print("где ЭТО ЧЕРТОВО ИСКЛЮЧЕНИЕ??????")
                 if product.quantity == 0:
-                    print("где ЭТО ЧЕРТОВО ИСКЛЮЧЕНИЕ??????")
-                    raise MyExceptions.AddZeroQuantityProduct('Товар с нулевым количеством не может быть добавлен')
-                    print("НЕ ОБРАБОТАЛОСЬ")
+                    raise ValueError('Товар с нулевым количеством не может быть добавлен')
                 if product.quantity < 0:
-                    raise MyExceptions.AddZeroQuantityProduct('Товар с ОТРИЦАТЕЛЬНЫМ количеством не может быть добавлен')
-                    print("где ЭТО ЧЕРТОВО ИСКЛЮЧЕНИЕ??????")
+                    raise ValueError('Товар с ОТРИЦАТЕЛЬНЫМ количеством не может быть добавлен')
 
                 index_if_product_exist = Product.is_product_in_list(product, self.__products)
                 if index_if_product_exist is not None:
-                    merged_successfully = self.merge_products(product, self.__products[index_if_product_exist])
-                    return merged_successfully
+                    self.merge_products(product, self.__products[index_if_product_exist])
                 else:
                     self.__products.append(product)
-                    return True
             else:
-                return False
-        except:
-            pass
+                raise ValueError('Можно добавить только экземпляр класса "Товар"')
+        except ValueError as e:
+            print('Попытка добавления некорректного экземпляра товара')
+            raise e #ValueError('Попытка добавления некорректного экземпляра товара')
         else:
-            pass
+            print('Товар корректно добавлен')
         finally:
-            pass
-
+            print('Отработано добавление товара')
 
     @staticmethod
     def merge_products(product, prod_in_list):
         prod_in_list.quantity += product.quantity
         prod_in_list.price = max([prod_in_list.price, product.price])
-        return True
+        # return True
 
     def __str__(self):
         """
@@ -447,6 +448,15 @@ class Order(MixinRepr, ProductsGroup):
         !__len__ реализован для класса Products.
         """
         return f"Количество продуктов: {self.quantity}, общая стоимость {self.price}."
+
+    # def get_raise(self, boolflag):
+    #     if boolflag:
+    #         print("где ЭТО ЧЕРТОВО ИСКЛЮЧЕНИЕ??????")
+    #         raise MyExceptions.AddZeroQuantityProduct('Товар с нулевым количеством не может быть добавлен')
+    #         print("НЕ ОБРАБОТАЛОСЬ")
+        # if product.quantity < 0:
+        #     raise MyExceptions.AddZeroQuantityProduct('Товар с ОТРИЦАТЕЛЬНЫМ количеством не может быть добавлен')
+        #     print("где ЭТО ЧЕРТОВО ИСКЛЮЧЕНИЕ??????")
 
 
 class CategoryIterator:
@@ -487,6 +497,3 @@ class CategoryIterator:
             return self.category.products[number]
         else:
             raise StopIteration
-
-
-

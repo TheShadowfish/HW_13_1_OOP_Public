@@ -8,7 +8,7 @@ from src.products import CategoryIterator
 from src.products import Smartphone
 from src.products import LawnGrass
 from src.products import Order
-from src.products import AddZeroQuantityProduct
+# from src.products import AddZeroQuantityProduct
 
 
 @pytest.fixture
@@ -171,16 +171,16 @@ def test_add_product(product_xiaomi, product_iphone, product_samsung, product_bl
                               [product_xiaomi, product_iphone, product_samsung])
     assert len(category_phone.product_list) == 3
 
-    assert category_phone.add_product(product_blackview)
+    assert category_phone.add_product(product_blackview) is None
 
     assert len(category_phone.product_list) == 4
 
-    assert category_phone.add_product(lawngrass)
+    assert category_phone.add_product(lawngrass) is None
     assert len(category_phone.product_list) == 5
 
-    assert not category_phone.add_product("Not product, string")
+    # assert not category_phone.add_product("Not product, string")
 
-    assert category_phone.add_product(smartphone)
+    assert category_phone.add_product(smartphone) is None
     assert len(category_phone.product_list) == 6
 
 
@@ -198,6 +198,9 @@ def test_add_product_zero_quantity(product_xiaomi, product_iphone, product_samsu
     with pytest.raises(SystemExit):
         assert category_phone.add_product(product_negative)
 
+    with pytest.raises(SystemExit):
+        assert category_phone.add_product("Not product, string")
+
     # with pytest.raises(ValueError, match='Товар с нулевым количеством не может быть добавлен'):
     #     assert category_phone.add_product(product_zero)
     #
@@ -214,7 +217,7 @@ def test_add_product_is_yet(product_xiaomi, product_iphone, product_samsung, pro
 
     assert len(category_phone.product_list) == 3
     #
-    assert category_phone.add_product(product_xiaomi_same_name)
+    assert category_phone.add_product(product_xiaomi_same_name) is None
     # assert not category_phone.add_product("Not product, string")
     assert len(category_phone.product_list) == 3
     assert category_phone.products[0].quantity == quantity
@@ -328,16 +331,16 @@ def test_add_order(product_xiaomi, product_iphone, product_samsung, product_blac
     order_phone = Order([product_xiaomi, product_iphone, product_samsung])
     assert len(order_phone.product_list) == 3
 
-    assert order_phone.add_product(product_blackview)
+    assert order_phone.add_product(product_blackview) is None
 
     assert len(order_phone.product_list) == 4
 
-    assert order_phone.add_product(lawngrass)
+    assert order_phone.add_product(lawngrass) is None
     assert len(order_phone.product_list) == 5
 
     assert not order_phone.add_product("Not product, string")
 
-    assert order_phone.add_product(smartphone)
+    assert order_phone.add_product(smartphone) is None
     assert len(order_phone.product_list) == 6
 
 def test_add_order_zero_quantity(product_xiaomi, product_iphone, product_samsung):
@@ -347,13 +350,24 @@ def test_add_order_zero_quantity(product_xiaomi, product_iphone, product_samsung
     product_negative = Product(product_iphone.title, product_iphone.description, product_iphone.price, -1)
 
 
-    with pytest.raises(AddZeroQuantityProduct) as exec_info:
-        order_phone.add_product(product_zero)
-        print(exec_info)
-        #assert AddZeroQuantityProduct in str(exec_info.value) == 'нулевым'
-        #self.message = args[0] if args else 'Добавление продукта с нулевым количеством экземпляров.'
+    # with pytest.raises(AddZeroQuantityProduct) as exec_info:
+    #     order_phone.add_product(product_zero)
+    #     print(exec_info)
+    #     #assert AddZeroQuantityProduct in str(exec_info.value) == 'нулевым'
+    #     #self.message = args[0] if args else 'Добавление продукта с нулевым количеством экземпляров.'
     # with pytest.raises(AddZeroQuantityProduct, match='с ОТРИЦАТЕЛЬНЫМ количеством'):
     #     assert order_phone.add_product(product_negative)
+    # with pytest.raises(ValueError):
+    #     order_phone.add_product(product_zero)
+
+    with pytest.raises(ValueError, match= 'Можно добавить только экземпляр класса "Товар"'):
+        order_phone.add_product("Not product, string")
+
+    with pytest.raises(ValueError, match='с нулевым количеством не может быть добавлен'):
+        assert order_phone.add_product(product_zero)
+
+    with pytest.raises(ValueError, match='с ОТРИЦАТЕЛЬНЫМ количеством'):
+        assert order_phone.add_product(product_negative)
 
 def test_add_order_product_is_yet(product_xiaomi, product_iphone, product_samsung, product_xiaomi_same_name, lawngrass):
     order_phone = Order([product_xiaomi, product_iphone, product_samsung])
@@ -363,15 +377,15 @@ def test_add_order_product_is_yet(product_xiaomi, product_iphone, product_samsun
 
     assert len(order_phone.product_list) == 3
     #
-    assert order_phone.add_product(product_xiaomi_same_name)
-    # assert not category_phone.add_product("Not product, string")
+    assert order_phone.add_product(product_xiaomi_same_name) is None
+    # assert not order_phone.add_product("Not product, string")
     assert len(order_phone.product_list) == 3
     assert order_phone.products[0].quantity == quantity
     assert order_phone.products[0].price == price
     assert price == 35000.0
-
+    #
     order_lawn = Order(lawngrass)
-    assert order_lawn.add_product(lawngrass)
+    assert order_lawn.add_product(lawngrass) is None
     assert len(order_lawn.product_list) == 1
     assert order_lawn.quantity == 2
     assert order_lawn.price == 14000.0
