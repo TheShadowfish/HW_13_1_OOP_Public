@@ -56,7 +56,7 @@ def main():
 
     try:
         order.add_product(tv_zero)
-    except AddZeroQuantityProduct as e:
+    except Exception as e:
         print(f"e= {e}")
 
 

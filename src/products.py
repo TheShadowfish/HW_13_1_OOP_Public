@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABC
+# from my_exceptions import AddZeroQuantityProduct, AddNegativeQuantityProduct, AddIncorrectProduct
 
 
 # import MyExceptions
@@ -450,13 +451,14 @@ class Order(MixinRepr, ProductsGroup):
         return f"Количество продуктов: {self.quantity}, общая стоимость {self.price}."
 
     # def get_raise(self, boolflag):
-    #     if boolflag:
-    #         print("где ЭТО ЧЕРТОВО ИСКЛЮЧЕНИЕ??????")
-    #         raise MyExceptions.AddZeroQuantityProduct('Товар с нулевым количеством не может быть добавлен')
-    #         print("НЕ ОБРАБОТАЛОСЬ")
-        # if product.quantity < 0:
-        #     raise MyExceptions.AddZeroQuantityProduct('Товар с ОТРИЦАТЕЛЬНЫМ количеством не может быть добавлен')
-        #     print("где ЭТО ЧЕРТОВО ИСКЛЮЧЕНИЕ??????")
+    #     if boolflag == 0:
+    #         raise AddZeroQuantityProduct
+    #     elif boolflag < 0:
+    #         raise AddNegativeQuantityProduct
+    #     elif isinstance(boolflag, str):
+    #         raise AddIncorrectProduct
+    #     else:
+    #         return "No Exeptions!"
 
 
 class CategoryIterator:
