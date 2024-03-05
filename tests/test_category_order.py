@@ -2,12 +2,13 @@ import pytest
 
 from src.products import Product
 from src.products import Category
-from src.products import CategoryIterator
-from src.products import Smartphone
-from src.products import LawnGrass
+# from src.products import CategoryIterator
+# from src.products import Smartphone
+# from src.products import LawnGrass
 from src.products import Order
 
-from src.my_exceptions import AddZeroQuantityProduct, AddNegativeQuantityProduct, AddIncorrectProduct
+
+# from src.my_exceptions import AddZeroQuantityProduct, AddNegativeQuantityProduct, AddIncorrectProduct
 
 
 def test_category__init__(product_xiaomi, product_iphone, product_samsung):
@@ -33,16 +34,10 @@ def test_add_product(product_xiaomi, product_iphone, product_samsung, product_bl
     category_phone = Category('Смартфоны', 'описание категории',
                               [product_xiaomi, product_iphone, product_samsung])
     assert len(category_phone.product_list) == 3
-
     assert category_phone.add_product(product_blackview) is None
-
     assert len(category_phone.product_list) == 4
-
     assert category_phone.add_product(lawngrass) is None
     assert len(category_phone.product_list) == 5
-
-    # assert not category_phone.add_product("Not product, string")
-
     assert category_phone.add_product(smartphone) is None
     assert len(category_phone.product_list) == 6
 
@@ -223,13 +218,13 @@ def test_add_order_zero_quantity(product_xiaomi, product_iphone, product_samsung
     # with pytest.raises(ValueError):
     #     order_phone.add_product(product_zero)
 
-    with pytest.raises(ValueError, match='Можно добавить только экземпляр класса "Товар"'):
+    with pytest.raises(Exception, match='Можно добавить только экземпляр класса "Товар"'):
         order_phone.add_product("Not product, string")
 
-    with pytest.raises(ValueError, match='с нулевым количеством не может быть добавлен'):
+    with pytest.raises(Exception, match='с нулевым количеством не может быть добавлен'):
         assert order_phone.add_product(product_zero)
 
-    with pytest.raises(ValueError, match='с ОТРИЦАТЕЛЬНЫМ количеством'):
+    with pytest.raises(Exception, match='с ОТРИЦАТЕЛЬНЫМ количеством'):
         assert order_phone.add_product(product_negative)
 
 

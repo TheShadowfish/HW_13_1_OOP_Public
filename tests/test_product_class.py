@@ -4,6 +4,7 @@ import builtins  # для тестирования функции с польз�
 
 from src.products import Product
 
+
 def test_smartphone__init(smartphone):
     """ Корректность инициализации объектов класса Product"""
     assert smartphone.title == 'Xiaomi Redmi Note 11 (Pro)'

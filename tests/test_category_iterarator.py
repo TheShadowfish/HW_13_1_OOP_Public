@@ -4,6 +4,7 @@ from src.products import Category
 from src.products import Order
 from src.products import Product
 
+
 def test_category_iterator__init__(product_xiaomi, product_iphone, product_samsung):
     category_phone = Category('Смартфоны', 'описание категории', [product_xiaomi, product_iphone, product_samsung])
     cat_iterator = CategoryIterator(category_phone)
