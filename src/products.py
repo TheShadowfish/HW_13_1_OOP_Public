@@ -1,4 +1,8 @@
 from abc import abstractmethod, ABC
+from src.my_exceptions import AddZeroQuantityProduct, AddNegativeQuantityProduct, AddIncorrectProduct
+
+
+# import MyExceptions
 
 
 class AbsProduct(ABC):
@@ -116,16 +120,15 @@ class Product(MixinRepr, AbsProduct):
     def price(self):
         return self.__price
 
-    """
-    В случае если цена равна или ниже нуля, выведите сообщение в консоль, что цена введена некорректная, 
-    при этом новую цену устанавливать не нужно.
-    Дополнительное задание (к заданию 4) В случае если цена товара понижается, 
-    добавьте логику подтверждения пользователем вручную через ввод y (значит yes) или n (значит no) 
-    для согласия понизить цену или для отмены действия соответственно.
-    """
-
     @price.setter
     def price(self, price):
+        """
+        В случае если цена равна или ниже нуля, выведите сообщение в консоль, что цена введена некорректная,
+        при этом новую цену устанавливать не нужно.
+        Дополнительное задание (к заданию 4) В случае если цена товара понижается,
+        добавьте логику подтверждения пользователем вручную через ввод y (значит yes) или n (значит no)
+        для согласия понизить цену или для отмены действия соответственно.
+        """
 
         if price <= 0:
             print(f"Цена введена некорректная.")
@@ -133,12 +136,16 @@ class Product(MixinRepr, AbsProduct):
         elif price < self.__price:
             while True:
                 print(f"Товар: {self}, новая цена: {price} (ниже)")
-                user_input = input("Вы действительно хотите установить более низкую цену? 'y'- да, 'n'-нет")
+                user_input = input(
+                    "Вы действительно хотите установить более низкую цену? 'y'- да, 'n' (или любое другое значение) - "
+                    "нет")
 
                 if user_input == 'y':
                     self.__price = price
                     break
                 elif user_input == 'n':
+                    break
+                else:
                     break
 
         else:
@@ -154,11 +161,6 @@ class Product(MixinRepr, AbsProduct):
         Выводит строку типа: 'Продукт, 80 руб. Остаток: 15 шт.'
         """
         return f"{self.title}, {str(self.__price)}. Остаток: {str(self.quantity)} шт."
-
-    # def __repr__(self):
-    #     s = f"<{self.__class__.__name__}({self.title}, {self.description}, {str(self.__price)},
-    #     {str(self.quantity)})>"
-    #     return s
 
     def __len__(self):
         return self.quantity
@@ -279,23 +281,47 @@ class Category(MixinRepr, ProductsGroup):
         return products_strings
 
     def add_product(self, product: Product):
-        """Добавление продукта в список."""
-        if isinstance(product, (Product, Smartphone, LawnGrass)):
-            index_if_product_exist = Product.is_product_in_list(product, self.__products)
-            if index_if_product_exist is not None:
-                merged_successfully = self.merge_products(product, self.__products[index_if_product_exist])
-                return merged_successfully
+        """
+        Добавление продукта в список.
+        При добавлении товара с нулевым количеством выкидывает ValueError
+        """
+        # return_bool = False
+
+        try:
+
+            if isinstance(product, (Product, Smartphone, LawnGrass)):
+                if product.quantity == 0:
+                    raise AddZeroQuantityProduct('Товар с нулевым количеством не может быть добавлен')
+                if product.quantity < 0:
+                    raise AddNegativeQuantityProduct('Товар с ОТРИЦАТЕЛЬНЫМ количеством не может быть добавлен')
+
+                index_if_product_exist = Product.is_product_in_list(product, self.__products)
+                if index_if_product_exist is not None:
+                    # merged_successfully = self.merge_products(product, self.__products[index_if_product_exist])
+                    # return merged_successfully
+                    #
+                    self.merge_products(product, self.__products[index_if_product_exist])
+                else:
+                    self.__products.append(product)
+                    # return_bool = True
             else:
-                self.__products.append(product)
-                return True
+                # return_bool = False
+                raise AddIncorrectProduct('Можно добавить только экземпляр класса "Товар"')
+        except (AddZeroQuantityProduct, AddNegativeQuantityProduct, AddIncorrectProduct):
+            print('При добавлении товара с нулевым количеством работа программы будет прервана согласно тех.заданию')
+            exit()
         else:
-            return False
+            print(f"Товар корректно добавлен")
+
+        finally:
+            print('Отработано добавление товара')
+            # return return_bool
 
     @staticmethod
     def merge_products(product, prod_in_list):
         prod_in_list.quantity += product.quantity
         prod_in_list.price = max([prod_in_list.price, product.price])
-        return True
+        # return True
 
     @staticmethod
     def unique_products(products: list[Product]) -> int:
@@ -322,6 +348,20 @@ class Category(MixinRepr, ProductsGroup):
     # def __repr__(self):
     #     return f"<{self.__class__.__name__}({self.title}, {self.description}, {str(self.__products)})>"
 
+    def products_avg(self):
+        """
+        В классе «Категории» реализовать метод, который подсчитывает средний ценник всех товаров. С помощью
+        исключений обработать случай, когда в категории нет товаров и сумма всех товаров будет делиться на ноль. В
+        случае, если такое происходит, возвращать ноль.
+        """
+        try:
+            prices = [product.price for product in self.__products]
+            sum(prices)
+            return sum(prices) / len(self.__products)
+
+        except ZeroDivisionError:
+            return 0
+
 
 class Order(MixinRepr, ProductsGroup):
     """
@@ -339,13 +379,6 @@ class Order(MixinRepr, ProductsGroup):
             self.__products.extend(products)
         else:
             self.__products.append(products)
-
-        # self.quantity = None
-        # self.prise = None
-
-        # for prod in list(products):
-        #     self.quantity += prod.quantity
-        #     self.prise += prod.prise * prod.quantity
 
         super().__init__()
 
@@ -372,23 +405,43 @@ class Order(MixinRepr, ProductsGroup):
         return sum(price_list)
 
     def add_product(self, product):
-        """Добавление продукта в список."""
-        if isinstance(product, (Product, Smartphone, LawnGrass)):
-            index_if_product_exist = Product.is_product_in_list(product, self.__products)
-            if index_if_product_exist is not None:
-                merged_successfully = self.merge_products(product, self.__products[index_if_product_exist])
-                return merged_successfully
+        """Добавление продукта в список.
+        Класс заказ просто выдает исключение при добавлении товара с нулевым количеством
+        В отличие от класса категория, добавление подобного продукта в который прерывает работу программы совсем
+
+        Создать класс исключения, который отвечает за обработку событий, когда в «Категорию» или в «Заказ»
+        добавляется товар с нулевым количеством. - Исключение должно вызываться и выводить соответствующее сообщение.
+        - При этом важно в случае успешного добавления товара вывести сообщение о том, что товар добавлен. - Также
+        при любом исходе вывести сообщение, что обработка добавления товара завершена.
+        """
+        try:
+            if isinstance(product, (Product, Smartphone, LawnGrass)):
+                if product.quantity == 0:
+                    raise AddZeroQuantityProduct('Товар с нулевым количеством не может быть добавлен')
+                    # raise ValueError('Товар с нулевым количеством не может быть добавлен')
+                if product.quantity < 0:
+                    raise AddNegativeQuantityProduct('Товар с ОТРИЦАТЕЛЬНЫМ количеством не может быть добавлен')
+
+                index_if_product_exist = Product.is_product_in_list(product, self.__products)
+                if index_if_product_exist is not None:
+                    self.merge_products(product, self.__products[index_if_product_exist])
+                else:
+                    self.__products.append(product)
             else:
-                self.__products.append(product)
-                return True
+                raise AddIncorrectProduct('Можно добавить только экземпляр класса "Товар"')
+        except (AddZeroQuantityProduct, AddNegativeQuantityProduct, AddIncorrectProduct) as e:
+            print('Попытка добавления некорректного экземпляра товара')
+            raise e  # ValueError('Попытка добавления некорректного экземпляра товара')
         else:
-            return False
+            print('Товар корректно добавлен')
+        finally:
+            print('Отработка добавления товара завершена')
 
     @staticmethod
     def merge_products(product, prod_in_list):
         prod_in_list.quantity += product.quantity
         prod_in_list.price = max([prod_in_list.price, product.price])
-        return True
+        # return True
 
     def __str__(self):
         """
